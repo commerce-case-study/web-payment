@@ -37,7 +37,7 @@ public class PaymentController {
     }
     
     @NeedLogin
-    @PostMapping(value = "/create", consumes = "application/json")
+    @PostMapping(value = "/pvt/create", consumes = "application/json")
     public ResponseEntity<String> createPayment(MemberDetail memberDetail, @RequestBody RequestPaymentDto requestPayment) {
         
         // 1. Find Order Data
@@ -62,21 +62,34 @@ public class PaymentController {
                 HttpStatus.OK);
     }
     
-    @PostMapping(value = "/notification", consumes = "application/json")
+    @PostMapping(value = "/pub/notification", consumes = "application/json")
     public ResponseEntity<String> paymentNotification(@RequestBody NotificationPaymentDto notificationPayment) {
         
         OrderPaymentDto orderPayment = tradeService.findOrderPaymentByPaymentCode(notificationPayment.getPaymentCode());
         if(null == orderPayment) {
             // Show the response
+            Map<String, String> maps = new HashMap<String, String>();
+            maps.put("message", "failed");
             return new ResponseEntity<String>(
-                    JsonConverterUtil.convertObjectToJson("Failed"), 
+                    JsonConverterUtil.convertObjectToJson(maps), 
                     HttpStatus.BAD_REQUEST);
         }
-        tradeService.updateOrderPaymentStatus(orderPayment.getPaymentCode(), notificationPayment.getStatus());
+        if(tradeService.updateOrderPaymentStatus(orderPayment.getPaymentCode(), notificationPayment.getStatus())) {
+            if(tradeService.updateOrderStatus(orderPayment.getOrderId(), notificationPayment.getStatus())) {
+                // Show the response
+                Map<String, String> maps = new HashMap<String, String>();
+                maps.put("message", "success");
+                return new ResponseEntity<String>(
+                        JsonConverterUtil.convertObjectToJson(maps), 
+                        HttpStatus.OK);
+            }
+        }
         
         // Show the response
+        Map<String, String> maps = new HashMap<String, String>();
+        maps.put("message", "failed");
         return new ResponseEntity<String>(
-                JsonConverterUtil.convertObjectToJson("Ok"), 
-                HttpStatus.OK);
+                JsonConverterUtil.convertObjectToJson(maps), 
+                HttpStatus.BAD_REQUEST);
     }
 }

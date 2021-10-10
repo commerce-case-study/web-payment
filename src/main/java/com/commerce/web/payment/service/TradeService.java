@@ -20,6 +20,9 @@ public interface TradeService {
     @PostMapping(value = "createOrder", consumes = "application/json")
     public Long createOrder(@RequestBody OrderDto order);
     
+    @GetMapping(value = "updateOrderStatus/{orderId}/{status}", produces = "application/json")
+    public Boolean updateOrderStatus(@PathVariable("orderId") Long orderId, @PathVariable("status") String status);
+    
     @PostMapping(value = "createOrderItem", consumes = "application/json")
     public Long createOrderItem(@RequestBody OrderItemDto orderItem);
     

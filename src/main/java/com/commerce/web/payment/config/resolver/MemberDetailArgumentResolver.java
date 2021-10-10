@@ -23,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class MemberDetailArgumentResolver implements HandlerMethodArgumentResolver {
     
-	Logger logger = LoggerFactory.getLogger(MemberDetailArgumentResolver.class);
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameter().getType() == MemberDetail.class;
@@ -49,7 +47,7 @@ public class MemberDetailArgumentResolver implements HandlerMethodArgumentResolv
         try {
             return new String(Base64.getDecoder().decode(decodedJwt));
         } catch (Exception e) {
-            logger.error("Error", e);
+            log.error("Error", e);
         }
         return "";
     }
@@ -69,7 +67,7 @@ public class MemberDetailArgumentResolver implements HandlerMethodArgumentResolv
         try {
             memberDetail = new ObjectMapper().readValue(content, MemberDetail.class);
         }catch (Exception e) {
-            logger.error("Error", e);
+            log.error("Error", e);
         }
         return memberDetail;
     }
